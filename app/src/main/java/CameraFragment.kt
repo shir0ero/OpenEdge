@@ -10,9 +10,16 @@ import androidx.fragment.app.Fragment
 
 class CameraFragment : Fragment() {
     private lateinit var reader: ImageReader
+    private var renderer: GLRenderer? = null
+    private var glView: android.opengl.GLSurfaceView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        glView = view.findViewById<android.opengl.GLSurfaceView>(com.example.openedge.R.id.glSurfaceView)
+        renderer = GLRenderer()
+        glView?.setEGLContextClientVersion(2)
+        glView?.setRenderer(renderer)
+        glView?.renderMode = android.opengl.GLSurfaceView.RENDERMODE_WHEN_DIRTY
         setupImageReader(640, 480) // MVP resolution
     }
 
@@ -27,10 +34,9 @@ class CameraFragment : Fragment() {
             // Call native function
             val processedRGBA = NativeBridge.processNV21(nv21, width, height, true)
 
-            // Log for now
-            android.util.Log.d("NativeTest", "Processed RGBA length: ${processedRGBA?.size}")
-
-            // TODO: pass processedRGBA to OpenGL texture later
+            // Pass processedRGBA to OpenGL texture
+            renderer?.updateFrame(processedRGBA!!, width, height)
+            glView?.requestRender()
         }, backgroundHandler)
     }
 
