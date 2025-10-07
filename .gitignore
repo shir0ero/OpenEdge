@@ -1,0 +1,6 @@
+# Ignore build and IDE files
+/build/
+/.gradle/
+/.idea/
+*.iml
+node_modules/
